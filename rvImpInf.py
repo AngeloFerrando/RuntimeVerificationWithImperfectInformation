@@ -60,6 +60,7 @@ class Monitor:
         initSet.add(init)
         return initSet, fin
     def next(self, ev):
+        print(ev)
         event = buddy.bddtrue
         for ap in self.__ap:
             if ap.startswith('!'): continue
@@ -140,9 +141,9 @@ def explicit_ltl(ltlstr, sim):
         for atom in lst:
             ltlstr = ltlstr.replace('!' + atom, atom + 'ff')
     for lst in sim:
-        print(lst)
+        # print(lst)
         for atom in lst:
-            print(atom)
+            # print(atom)
             j = 0
             while True:
                 i = ltlstr.find(atom, j)
@@ -154,10 +155,30 @@ def explicit_ltl(ltlstr, sim):
     return ltlstr
 
 def main(args):
-    # ltl = ltl.negative_normal_form()
-    ltl = 'X a'
-    ap = ['a', 'b', 'c']
-    mon = Monitor(ltl, ap)
+    ltl = args[1]
+    ap = set(args[2].replace('[','').replace(']','').split(','))
+    aux = args[3]
+    sim = []
+    i = aux.find('[')
+    j = aux.find(']')
+    while i != -1 and j != -1:
+        sim.append(aux[i+1:j].split(','))
+        i = aux.find('[', i+1)
+        j = aux.find(']', j+1)
+    filename = args[4]
+    print('ltl ' + str(ltl))
+    print('ap ' + str(ap))
+    print('sim ' + str(sim))
+    print(filename)
+    monitor = Monitor(ltl, ap, sim)
+    verdict = None
+    with open(filename, 'r') as file:
+        while True:
+            event = file.readline()
+            if not event:
+                break
+            verdict = monitor.next(set(event.replace('\n', '').replace(' ', '').split(',')))
+    print('Verdict: ' + str(verdict))
 
 if __name__ == '__main__':
     main(sys.argv)

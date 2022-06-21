@@ -1,5 +1,4 @@
 import sys
-sys.path.insert(0,'/usr/local/lib/python3.7/site-packages/')
 import spot
 import time
 from enum import Enum

@@ -1,5 +1,9 @@
 # RuntimeVerificationWithImperfectInformation
 
+## Requirements
+
+- Spot (https://spot.lrde.epita.fr/)
+
 ## How to run
 
 Inside the terminal

@@ -1,4 +1,5 @@
 import sys
+sys.path.insert(0,'/usr/local/lib/python3.7/site-packages/')
 import spot
 import time
 from enum import Enum
@@ -27,8 +28,10 @@ class Verdict(Enum):
 
 class Monitor:
     def __init__(self, ltl, ap, sim):
-        eLTL = explicit_ltl(ltl, sim)
-        enLTL = explicit_ltl(spot.formula('!(' + ltl + ')').negative_normal_form().to_str(), sim)
+        eLTL = explicit_ltl(ltl, ap)
+        print('Explicit LTL: ', eLTL)
+        enLTL = explicit_ltl(spot.formula('!(' + ltl + ')').negative_normal_form().to_str(), ap)
+        print('Explicit negation of LTL: ', enLTL)
         self.__pAut = spot.translate(eLTL)
         self.__nAut = spot.translate(enLTL)
         self.__uAut = spot.translate('!'+eLTL+'&'+'!'+enLTL)
@@ -135,23 +138,37 @@ class Monitor:
         else:
             return Verdict.unknown
 
-def explicit_ltl(ltlstr, sim):
-    for lst in sim:
-        for atom in lst:
-            ltlstr = ltlstr.replace('!' + atom, atom + 'ff')
-    for lst in sim:
-        # print(lst)
-        for atom in lst:
-            # print(atom)
-            j = 0
-            while True:
-                i = ltlstr.find(atom, j)
-                if i == -1:
-                    break
-                if (i+len(atom)) >= len(ltlstr) or ltlstr[i+len(atom)] != 'f':
-                    ltlstr = ltlstr[:i] + atom + 'tt' + ltlstr[i+len(atom):]
-                j = i+1
+def explicit_ltl(ltlstr, ap):
+    for atom in ap:
+        ltlstr = ltlstr.replace('!' + atom, atom + 'ff')
+    for atom in ap:
+        # print(atom)
+        j = 0
+        while True:
+            i = ltlstr.find(atom, j)
+            if i == -1:
+                break
+            if (i+len(atom)) >= len(ltlstr) or ltlstr[i+len(atom)] != 'f':
+                ltlstr = ltlstr[:i] + atom + 'tt' + ltlstr[i+len(atom):]
+            j = i+1
     return ltlstr
+# def explicit_ltl(ltlstr, sim):
+#     for lst in sim:
+#         for atom in lst:
+#             ltlstr = ltlstr.replace('!' + atom, atom + 'ff')
+#     for lst in sim:
+#         # print(lst)
+#         for atom in lst:
+#             # print(atom)
+#             j = 0
+#             while True:
+#                 i = ltlstr.find(atom, j)
+#                 if i == -1:
+#                     break
+#                 if (i+len(atom)) >= len(ltlstr) or ltlstr[i+len(atom)] != 'f':
+#                     ltlstr = ltlstr[:i] + atom + 'tt' + ltlstr[i+len(atom):]
+#                 j = i+1
+#     return ltlstr
 
 def main(args):
     ltl = args[1]

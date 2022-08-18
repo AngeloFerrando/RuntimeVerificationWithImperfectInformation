@@ -28,7 +28,7 @@ class Verdict(Enum):
 
 class Monitor:
     def __init__(self, ltl, ap, sim):
-        eLTL = explicit_ltl(ltl, ap)
+        eLTL = explicit_ltl(spot.formula(ltl).negative_normal_form().to_str(), ap)
         print('Explicit LTL: ', eLTL)
         enLTL = explicit_ltl(spot.formula('!(' + ltl + ')').negative_normal_form().to_str(), ap)
         print('Explicit negation of LTL: ', enLTL)

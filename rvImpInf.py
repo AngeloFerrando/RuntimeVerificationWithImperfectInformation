@@ -28,13 +28,14 @@ class Verdict(Enum):
 
 class Monitor:
     def __init__(self, ltl, ap, sim):
-        eLTL = explicit_ltl(ltl, ap)
+        eLTL = explicit_ltl(spot.formula(ltl).negative_normal_form().to_str(), ap)
         print('Explicit LTL: ', eLTL)
         enLTL = explicit_ltl(spot.formula('!(' + ltl + ')').negative_normal_form().to_str(), ap)
         print('Explicit negation of LTL: ', enLTL)
         self.__pAut = spot.translate(eLTL)
         self.__nAut = spot.translate(enLTL)
-        self.__uAut = spot.translate('!'+eLTL+'&'+'!'+enLTL)
+        self.__uAut = spot.translate('!('+eLTL+')&'+'!('+enLTL+')')
+        # print(self.__uAut.to_str('hoa'))
         self.__pInit, self.__pFin = self.setup(self.__pAut)
         self.__nInit, self.__nFin = self.setup(self.__nAut)
         self.__uInit, self.__uFin = self.setup(self.__uAut)
@@ -71,6 +72,7 @@ class Monitor:
                 if ap in s:
                     ind = s
                     break
+            # print(ind)
             if not ind and ap in ev:
                 a = self.__pAut.register_ap(ap+'tt')
                 b = self.__pAut.register_ap(ap+'ff')
@@ -139,6 +141,7 @@ class Monitor:
             return Verdict.unknown
 
 def explicit_ltl(ltlstr, ap):
+    # print(ltlstr)
     for atom in ap:
         ltlstr = ltlstr.replace('!' + atom, atom + 'ff')
     for atom in ap:
